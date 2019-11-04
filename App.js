@@ -1,38 +1,64 @@
-import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect } from "react";
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' + 'Shake or press menu button for dev menu',
+import { StyleSheet, ActivityIndicator } from "react-native";
+import { createSwitchNavigator, createAppContainer } from "react-navigation";
+import { createStackNavigator } from "react-navigation-stack";
+
+import { ApolloProvider } from "@apollo/react-hooks";
+import { Layout, ApplicationProvider, IconRegistry } from "react-native-ui-kitten";
+import { mapping, light as lightTheme } from "@eva-design/eva";
+import { EvaIconsPack } from "@ui-kitten/eva-icons";
+
+import Client from "./apolloClient";
+import Login from "./views/Login";
+import Profile from "./views/Profile";
+import { getToken } from "./util";
+
+const AuthStack = createStackNavigator({
+  Login: { screen: Login }
 });
 
-export default class App extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
-      </View>
-    );
-  }
-}
+const LoggedInStack = createStackNavigator({
+  Profile: { screen: Profile }
+});
+
+const App = ({ navigation }) => {
+  useEffect(() => {
+    async function checkToken() {
+      const token = await getToken();
+
+      navigation.navigate(token ? "App" : "Auth");
+    }
+
+    checkToken();
+  });
+
+  return (
+    <ApolloProvider client={Client}>
+      <IconRegistry icons={EvaIconsPack} />
+      <ApplicationProvider mapping={mapping} theme={lightTheme}>
+        <Layout style={styles.container} />
+        <ActivityIndicator />
+      </ApplicationProvider>
+    </ApolloProvider>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+    padding: 16
+  }
 });
+
+export default createAppContainer(
+  createSwitchNavigator(
+    {
+      AuthLoading: App,
+      App: createStackNavigator({ Profile: Profile }),
+      Auth: createStackNavigator({ Login: Login })
+    },
+    {
+      initialRouteName: "AuthLoading"
+    }
+  )
+);
