@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 
 import { StyleSheet, ActivityIndicator } from "react-native";
 import { createSwitchNavigator, createAppContainer } from "react-navigation";
@@ -14,33 +14,46 @@ import Login from "./views/Login";
 import Profile from "./views/Profile";
 import { getToken } from "./util";
 
-const AuthStack = createStackNavigator({
-  Login: { screen: Login }
-});
+const AuthApp = ({ navigation }) => {
+  return (
+    <ApolloProvider client={Client}>
+      <IconRegistry icons={EvaIconsPack} />
+      <ApplicationProvider mapping={mapping} theme={lightTheme}>
+        <Layout style={styles.container} />
+        <Profile />
+      </ApplicationProvider>
+    </ApolloProvider>
+  );
+};
 
-const LoggedInStack = createStackNavigator({
-  Profile: { screen: Profile }
-});
+const UnauthApp = ({ navigation }) => {
+  return (
+    <ApolloProvider client={Client}>
+      <IconRegistry icons={EvaIconsPack} />
+      <ApplicationProvider mapping={mapping} theme={lightTheme}>
+        <Layout style={styles.container} />
+        <Login onAuthComplete={() => navigation.navigate("AuthApp")} />
+      </ApplicationProvider>
+    </ApolloProvider>
+  );
+};
 
-const App = ({ navigation }) => {
+const AuthLoading = ({ navigation }) => {
   useEffect(() => {
     async function checkToken() {
       const token = await getToken();
 
-      navigation.navigate(token ? "App" : "Auth");
+      navigation.navigate(token ? "AuthApp" : "UnauthApp");
     }
 
     checkToken();
   });
 
   return (
-    <ApolloProvider client={Client}>
-      <IconRegistry icons={EvaIconsPack} />
-      <ApplicationProvider mapping={mapping} theme={lightTheme}>
-        <Layout style={styles.container} />
-        <ActivityIndicator />
-      </ApplicationProvider>
-    </ApolloProvider>
+    <ApplicationProvider mapping={mapping} theme={lightTheme}>
+      <Layout style={styles.container} />
+      <ActivityIndicator />
+    </ApplicationProvider>
   );
 };
 
@@ -53,9 +66,9 @@ const styles = StyleSheet.create({
 export default createAppContainer(
   createSwitchNavigator(
     {
-      AuthLoading: App,
-      App: createStackNavigator({ Profile: Profile }),
-      Auth: createStackNavigator({ Login: Login })
+      AuthLoading: AuthLoading,
+      AuthApp: createStackNavigator({ AuthApp: AuthApp }),
+      UnauthApp: createStackNavigator({ UnauthApp: UnauthApp })
     },
     {
       initialRouteName: "AuthLoading"

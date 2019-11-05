@@ -19,13 +19,13 @@ const LOG_IN = gql`
   }
 `;
 
-const Login = () => {
+const Login = ({ onAuthComplete }) => {
   const [logIn] = useMutation(LOG_IN, {
     onCompleted: ({
       signIn: {
         user: { authenticationToken }
       }
-    }) => signIn(authenticationToken)
+    }) => signIn(authenticationToken).then(onAuthComplete)
   });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
