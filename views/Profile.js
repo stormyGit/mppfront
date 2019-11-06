@@ -31,9 +31,7 @@ const Profile = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16
-  },
+  container: {},
   contentContainer: {
     justifyContent: "center",
     alignItems: "center"

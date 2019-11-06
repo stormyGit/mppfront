@@ -86,7 +86,7 @@ const Login = ({ onAuthComplete, themedStyle }) => {
         textStyle={themedStyle.signUpText}
         appearance="ghost"
         activeOpacity={0.75}
-        onPress={() => NavigationPreloadManager.navigate("Register")}
+        onPress={() => null}
       >
         Don't have an account? Create
       </Button>
