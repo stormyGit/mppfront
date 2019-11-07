@@ -1,76 +1,38 @@
-import React, { useEffect } from "react";
+import React, { useState } from 'react';
 
-import { StyleSheet, ActivityIndicator } from "react-native";
-import { createSwitchNavigator, createAppContainer } from "react-navigation";
-import { createStackNavigator } from "react-navigation-stack";
+import { ApolloProvider } from '@apollo/react-hooks';
+import { ApplicationProvider, IconRegistry } from 'react-native-ui-kitten';
+import { mapping, light as lightTheme } from '@eva-design/eva';
+import { EvaIconsPack } from '@ui-kitten/eva-icons';
 
-import { ApolloProvider } from "@apollo/react-hooks";
-import { Layout, ApplicationProvider, IconRegistry, Button } from "react-native-ui-kitten";
-import { mapping, light as lightTheme } from "@eva-design/eva";
-import { EvaIconsPack } from "@ui-kitten/eva-icons";
+import Client from './apolloClient';
+import AppLoader from './core/AppLoader';
+import router from './core/Router';
 
-import Client from "./apolloClient";
-import Login from "./views/Login";
-import Profile from "./views/Profile";
-import AppLoader from "./core/AppLoader";
-import { signOut } from "./util";
-import Router from "./core/Router";
+const App = () => {
+	const [ signedIn, setSignedIn ] = useState(false);
 
-const AuthApp = ({ navigation }) => {
-  return (
-    <ApolloProvider client={Client}>
-      <IconRegistry icons={EvaIconsPack} />
-      <ApplicationProvider mapping={mapping} theme={lightTheme}>
-        <Button onPress={() => signOut()} />
-        <Router />
-      </ApplicationProvider>
-    </ApolloProvider>
-  );
+	const Router = router(signedIn);
+	return (
+		<AppLoader
+			setSignedIn={setSignedIn}
+			assets={{
+				fonts: {
+					'opensans-semibold': require('./assets/fonts/opensans-semibold.ttf'),
+					'opensans-bold': require('./assets/fonts/opensans-bold.ttf'),
+					'opensans-extrabold': require('./assets/fonts/opensans-extra-bold.ttf'),
+					'opensans-light': require('./assets/fonts/opensans-light.ttf'),
+					'opensans-regular': require('./assets/fonts/opensans-regular.ttf')
+				}
+			}}>
+			<ApolloProvider client={Client}>
+				<IconRegistry icons={EvaIconsPack} />
+				<ApplicationProvider mapping={mapping} theme={lightTheme}>
+					<Router />
+				</ApplicationProvider>
+			</ApolloProvider>
+		</AppLoader>
+	);
 };
 
-const UnauthApp = ({ navigation }) => {
-  return (
-    <ApolloProvider client={Client}>
-      <IconRegistry icons={EvaIconsPack} />
-      <ApplicationProvider mapping={mapping} theme={lightTheme}>
-        <Login onAuthComplete={() => navigation.navigate("AuthApp")} />
-      </ApplicationProvider>
-    </ApolloProvider>
-  );
-};
-
-const AuthLoading = ({ navigation }) => {
-  return (
-    <ApplicationProvider mapping={mapping} theme={lightTheme}>
-      <AppLoader
-        navigation={navigation}
-        assets={{
-          fonts: {
-            "opensans-semibold": require("./assets/fonts/opensans-semibold.ttf"),
-            "opensans-bold": require("./assets/fonts/opensans-bold.ttf"),
-            "opensans-extrabold": require("./assets/fonts/opensans-extra-bold.ttf"),
-            "opensans-light": require("./assets/fonts/opensans-light.ttf"),
-            "opensans-regular": require("./assets/fonts/opensans-regular.ttf")
-          }
-        }}
-      />
-    </ApplicationProvider>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {}
-});
-
-export default createAppContainer(
-  createSwitchNavigator(
-    {
-      AuthLoading: AuthLoading,
-      AuthApp: createStackNavigator({ AuthApp: AuthApp }),
-      UnauthApp: createStackNavigator({ UnauthApp: UnauthApp })
-    },
-    {
-      initialRouteName: "AuthLoading"
-    }
-  )
-);
+export default App;

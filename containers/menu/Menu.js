@@ -5,7 +5,6 @@ import { BottomNavigation, BottomNavigationTab, Icon, withStyles } from "react-n
 import SafeAreaView from "../../core/SafeAreaView";
 
 const Menu = ({ onTabSelect, selectedIndex, themedStyle }) => {
-  console.log(123, selectedIndex);
   return (
     <SafeAreaView style={themedStyle.safeAreaContainer}>
       <BottomNavigation

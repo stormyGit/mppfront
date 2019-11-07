@@ -23,13 +23,13 @@ const LOG_IN = gql`
   }
 `;
 
-const Login = ({ onAuthComplete, themedStyle }) => {
+const Login = ({ navigation, themedStyle }) => {
   const [logIn] = useMutation(LOG_IN, {
     onCompleted: ({
       signIn: {
         user: { authenticationToken }
       }
-    }) => signIn(authenticationToken).then(onAuthComplete)
+    }) => signIn(authenticationToken).then(() => navigation.navigate("Auth"))
   });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
