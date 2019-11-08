@@ -10,7 +10,7 @@ import { signIn } from "../util";
 
 import { textStyle } from "../styles/textStyle";
 import ScrollableAvoidKeyboard from "../components/common/ScrollableAvoidKeyboard";
-import { NameValidator, PasswordValidator } from "../core/Validator";
+import { EmailValidator, PasswordValidator } from "../core/Validator";
 
 const LOG_IN = gql`
   mutation signin($signInInput: SignInInput!) {
@@ -23,6 +23,15 @@ const LOG_IN = gql`
   }
 `;
 
+function getValidity(validator, value) {
+  return validator(value);
+}
+
+function getStatus(validator, value) {
+  if (value === "") return "primary";
+  return getValidity(validator, value) ? "success" : "danger";
+}
+
 const Login = ({ navigation, themedStyle }) => {
   const [logIn] = useMutation(LOG_IN, {
     onCompleted: ({
@@ -31,6 +40,8 @@ const Login = ({ navigation, themedStyle }) => {
       }
     }) => signIn(authenticationToken).then(() => navigation.navigate("Auth"))
   });
+  const [emailStatus, setEmailStatus] = useState("");
+  const [passwordStatus, setPasswordStatus] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,16 +59,25 @@ const Login = ({ navigation, themedStyle }) => {
       <View style={themedStyle.formContainer}>
         <View style={themedStyle.container}>
           <View style={themedStyle.formContainer}>
-            <Input value={email} onChangeText={e => setEmail(e)} placeholder="Email" />
+            <Input
+              value={email}
+              status={emailStatus}
+              onChangeText={e => setEmail(e)}
+              placeholder="Email"
+            />
             <Input
               style={themedStyle.passwordInput}
               value={password}
+              status={passwordStatus}
               onChangeText={e => setPassword(e)}
               placeholder="Password"
               secureTextEntry={!showPassword}
               onIconPress={() => setShowPassword(!showPassword)}
               icon={style => <Icon {...style} name={showPassword ? "eye" : "eye-off"} />}
             />
+            {passwordStatus === "danger" && (
+              <Text color="danger">Password must be 8 characters minimum</Text>
+            )}
             <View style={themedStyle.forgotPasswordContainer}>
               <Button
                 style={themedStyle.forgotPasswordButton}
@@ -77,7 +97,16 @@ const Login = ({ navigation, themedStyle }) => {
         textStyle={textStyle.button}
         size="giant"
         disabled={!email || !password}
-        onPress={() => logIn({ variables: { signInInput: { email, password } } })}
+        onPress={() => {
+          if (!getValidity(PasswordValidator, password) || !getValidity(EmailValidator, email)) {
+            setEmailStatus(getStatus(EmailValidator, email));
+            setPasswordStatus(getStatus(PasswordValidator, password));
+          } else {
+            setEmailStatus(getStatus(EmailValidator, email));
+            setPasswordStatus(getStatus(PasswordValidator, password));
+            logIn({ variables: { signInInput: { email, password } } });
+          }
+        }}
       >
         SIGN IN
       </Button>

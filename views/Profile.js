@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { StyleSheet } from "react-native";
-import { Button, Icon, Input, Layout } from "react-native-ui-kitten";
+import { Button, Icon, Input, Layout, Text } from "react-native-ui-kitten";
 
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
@@ -27,11 +27,15 @@ const Profile = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   console.log(data);
-  return <Layout style={styles.container}></Layout>;
+  return (
+    <Layout style={styles.container}>
+      <Text>TOTO PROFIL</Text>
+    </Layout>
+  );
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  container: { marginTop: 48 },
   contentContainer: {
     justifyContent: "center",
     alignItems: "center"
