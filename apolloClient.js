@@ -17,7 +17,7 @@ const authLink = setContext(async (req, { headers }) => {
 });
 
 const httpLink = new HttpLink({
-  uri: "http://192.168.0.4:3000/graphql"
+  uri: "http://moufi.fr/graphql"
 });
 
 const link = authLink.concat(httpLink);
