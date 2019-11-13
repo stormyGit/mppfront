@@ -4,8 +4,13 @@ import { createStackNavigator } from 'react-navigation-stack';
 
 import { enableScreens } from 'react-native-screens';
 
-import HomeContainer from '../containers/home/HomeContainer';
 import MenuContainer from '../containers/menu/MenuContainer';
+
+import HomeContainer from '../containers/home/HomeContainer';
+
+import GroupActions from '../views/GroupActions';
+import CreateGroup from '../views/CreateGroup';
+
 import ProfileContainer from '../containers/profile/ProfileContainer';
 
 import Login from '../views/Login';
@@ -19,9 +24,15 @@ const ProfileNavigator = createStackNavigator({
 	['Profile']: ProfileContainer
 });
 
+const GroupNavigator = createStackNavigator({
+	['GroupAction']: GroupActions,
+	['CreateGroup']: CreateGroup
+});
+
 const MenuNavigator = createBottomTabNavigator(
 	{
 		['Home']: HomeNavigator,
+		['Group']: GroupNavigator,
 		['Profile']: ProfileNavigator
 	},
 	{
@@ -39,8 +50,9 @@ const createAppRouter = (container) => {
 	return createAppContainer(container);
 };
 
-export default (signedIn = false) =>
-	createAppRouter(
+export default (signedIn) => {
+	if (signedIn === null) return null;
+	return createAppRouter(
 		createSwitchNavigator(
 			{
 				['Auth']: MenuNavigator,
@@ -51,3 +63,4 @@ export default (signedIn = false) =>
 			}
 		)
 	);
+};
