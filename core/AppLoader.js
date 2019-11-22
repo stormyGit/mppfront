@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
 import { AppLoading, SplashScreen } from 'expo';
+
+import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
 
 import { getToken } from '../util';
 
-function AppLoader({ setSignedIn, assets: { fonts }, children }) {
+function AppLoader({ setSignedIn, assets: { fonts, images }, children }) {
 	const [ loading, setLoading ] = useState(true);
 	useEffect(() => {
 		SplashScreen.preventAutoHide();
@@ -16,7 +18,11 @@ function AppLoader({ setSignedIn, assets: { fonts }, children }) {
 			<AppLoading
 				startAsync={async () => {
 					return Promise.all([
-						(async () => Font.loadAsync(fonts))()
+						(async () => Font.loadAsync(fonts))(),
+						(async () =>
+							Promise.all(
+								images.map(async (image) => Asset.fromModule(image).downloadAsync())
+							))()
 						// TODO: Load Image,  other ressources here
 					]);
 				}}

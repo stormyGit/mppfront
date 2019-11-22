@@ -32,7 +32,7 @@ function getStatus(validator, value) {
   return getValidity(validator, value) ? "success" : "danger";
 }
 
-const Register = ({ onAuthComplete, themedStyle }) => {
+const Register = ({ themedStyle }) => {
   const [signUp] = useMutation(REGISTER_USER, {
     onCompleted: ({ registerUser: { user } }) =>
       signIn(authenticationToken).then(() => navigation.navigate("Auth"))

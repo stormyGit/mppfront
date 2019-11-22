@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 import { SafeAreaView as SafeAreaViewReactNavigation } from "react-navigation";
 import Constants from "expo-constants";
 
-const SafeAreaView = () => {
+const SafeAreaView = (props) => {
   useEffect(() => {
     SafeAreaViewReactNavigation.setStatusBarHeight(
       Platform.select({
@@ -13,7 +13,7 @@ const SafeAreaView = () => {
     );
   });
 
-  return <SafeAreaViewReactNavigation {...this.props} />;
+  return <SafeAreaViewReactNavigation {...props} />;
 };
 
 export default SafeAreaView;
