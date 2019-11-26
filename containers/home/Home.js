@@ -6,25 +6,8 @@ import { Button, Icon, Layout, Text, withStyles, List } from 'react-native-ui-ki
 import { textStyle } from '../../styles/textStyle';
 import { imagePost1Bg } from '../../assets/images/index';
 
-import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
-
-const GET_USER_GROUPS = gql`
-	query {
-		myself {
-			id
-			name
-			groups {
-				id
-				public
-				name
-				users {
-					name
-				}
-			}
-		}
-	}
-`;
+import MYSELF from '../../graphql/myself';
 
 const GroupsList = ({ themedStyle, groups }) => {
 	const GroupCard = ({ item: { name, users, public: pub } }) => (
@@ -65,10 +48,12 @@ const GroupsList = ({ themedStyle, groups }) => {
 };
 
 const Home = ({ themedStyle }) => {
-	const { loading, error, data } = useQuery(GET_USER_GROUPS);
+	const { loading, error, data } = useQuery(MYSELF);
 
-	if (loading || error) return null;
+	if (error) return <Layout><Text>{console.log(error) && "error"}</Text></Layout>
+	if (loading) return null;
 
+	console.log(data)
 	return (
 		<Layout>
 			<GroupsList themedStyle={themedStyle} groups={data.myself.groups} />

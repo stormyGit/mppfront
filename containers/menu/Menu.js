@@ -13,15 +13,15 @@ const Menu = ({ onTabSelect, selectedIndex, themedStyle }) => {
 				onSelect={onTabSelect}>
 				<BottomNavigationTab
 					title='Home'
-					icon={() => <Icon name='home-outline' fill='#C5CEE0'/>}
+					icon={(style) => <Icon {...style} name='home-outline'/>}
 				/>
 				<BottomNavigationTab
 					title='Groupes'
-					icon={() => <Icon name='people-outline' fill='#C5CEE0'/>}
+					icon={(style) => <Icon {...style} name='people-outline'/>}
 				/>
 				<BottomNavigationTab
 					title='Profil'
-					icon={() => <Icon name='person-outline' fill='#C5CEE0'/>}
+					icon={(style) => <Icon {...style} name='person-outline'/>}
 				/>
 			</BottomNavigation>
 		</SafeAreaView>
@@ -32,7 +32,4 @@ export default withStyles(Menu, (theme) => ({
 	safeAreaContainer: {
 		backgroundColor: theme['background-basic-color-1']
 	},
-	icon: {
-		color: theme['background-basic-color-2']
-	}
 }));
