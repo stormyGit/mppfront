@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Notifications } from "expo";
+import * as Permissions from "expo-permissions";
 
 import { View } from "react-native";
 import { Button, Icon, Input, Text, withStyles } from "react-native-ui-kitten";
@@ -22,6 +24,26 @@ const REGISTER_USER = gql`
     }
   }
 `;
+
+async function registerForPushNotificationsAsync() {
+  const { status: existingStatus } = await Permissions.getAsync(
+    Permissions.NOTIFICATIONS
+  );
+  let finalStatus = existingStatus;
+
+  if (existingStatus !== "granted") {
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    finalStatus = status;
+  }
+
+  if (finalStatus !== "granted") {
+    return;
+  }
+
+  let token = await Notifications.getExpoPushTokenAsync();
+
+  return token;
+}
 
 function getValidity(validator, value) {
   return validator(value);
@@ -59,7 +81,11 @@ const Register = ({ themedStyle }) => {
       <View style={themedStyle.formContainer}>
         <View style={themedStyle.container}>
           <View style={themedStyle.formContainer}>
-            <Input value={name} onChangeText={e => setName(e)} placeholder="Name" />
+            <Input
+              value={name}
+              onChangeText={e => setName(e)}
+              placeholder="Name"
+            />
             <Input
               value={email}
               status={emailStatus}
@@ -74,7 +100,9 @@ const Register = ({ themedStyle }) => {
               placeholder="Password"
               secureTextEntry={!showPassword}
               onIconPress={() => setShowPassword(!showPassword)}
-              icon={style => <Icon {...style} name={showPassword ? "eye" : "eye-off"} />}
+              icon={style => (
+                <Icon {...style} name={showPassword ? "eye" : "eye-off"} />
+              )}
             />
             <Input
               value={passwordConfirm}
@@ -82,12 +110,16 @@ const Register = ({ themedStyle }) => {
               placeholder="Confirm Password"
               secureTextEntry={!showPassword}
               onIconPress={() => setShowPassword(!showPassword)}
-              icon={style => <Icon {...style} name={showPassword ? "eye" : "eye-off"} />}
+              icon={style => (
+                <Icon {...style} name={showPassword ? "eye" : "eye-off"} />
+              )}
             />
             {passwordStatus === "danger" && (
               <Text color="danger">Password must be 8 characters minimum</Text>
             )}
-            {passwordDiffer && <Text color="danger">Passwords don't match</Text>}
+            {passwordDiffer && (
+              <Text color="danger">Passwords don't match</Text>
+            )}
           </View>
         </View>
       </View>
@@ -101,7 +133,10 @@ const Register = ({ themedStyle }) => {
           setPasswordStatus("");
           setEmailStatus("");
           setPasswordDiffer(false);
-          if (!getValidity(PasswordValidator, password) || !getValidity(EmailValidator, email)) {
+          if (
+            !getValidity(PasswordValidator, password) ||
+            !getValidity(EmailValidator, email)
+          ) {
             setEmailStatus(getStatus(EmailValidator, email));
             setPasswordStatus(getStatus(PasswordValidator, password));
           } else if (password != passwordConfirm) {
@@ -110,7 +145,13 @@ const Register = ({ themedStyle }) => {
             setEmailStatus("");
             setPasswordStatus("");
             setPasswordDiffer(false);
-            signUp({ variables: { registerUserInput: { email, password, name } } });
+            registerForPushNotificationsAsync().then(expoToken => {
+              signUp({
+                variables: {
+                  registerUserInput: { email, password, name, expoToken }
+                }
+              });
+            });
           }
         }}
       >
